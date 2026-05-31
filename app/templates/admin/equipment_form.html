@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Редактирование' if item else 'Новое изделие' }} · Админ{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <h1>{{ 'Редактирование изделия' if item else 'Новое изделие' }}</h1>
+    <p class="muted"><a href="{{ url_for('admin.equipment_list') }}">← К списку оборудования</a></p>
+</div>
+
+<form method="post" class="admin-form" enctype="multipart/form-data">
+    <div class="form-row">
+        <label>Название*
+            <input type="text" name="title" required value="{{ item.title if item else '' }}">
+        </label>
+        <label>Марка / обозначение
+            <input type="text" name="marking" value="{{ item.marking if item else '' }}">
+        </label>
+    </div>
+
+    <label>Изображение (JPEG, PNG, WEBP, GIF, до 3 МБ)
+        <input type="file" name="image" accept="image/*">
+    </label>
+    {% if item and item.has_image %}
+    <div class="img-edit">
+        <img src="{{ url_for('catalog.equipment_image', eq_id=item.id) }}" alt="Текущее изображение">
+        <label class="img-remove">
+            <input type="checkbox" name="remove_image" value="1"> Удалить текущее изображение
+        </label>
+    </div>
+    {% endif %}
+    <label>Категория*
+        <select name="category_id" required>
+            <option value="">— выберите —</option>
+            {% for c in categories %}
+            <option value="{{ c.id }}" {{ 'selected' if item and item.category_id == c.id }}>{{ c.name }}</option>
+            {% endfor %}
+        </select>
+    </label>
+    <label>Назначение
+        <textarea name="purpose" rows="3">{{ item.purpose if item else '' }}</textarea>
+    </label>
+    <label>Принцип работы
+        <textarea name="operating_principle" rows="4">{{ item.operating_principle if item else '' }}</textarea>
+    </label>
+    <label>Технические характеристики
+        <textarea name="specifications" rows="4">{{ item.specifications if item else '' }}</textarea>
+    </label>
+    <label>Область применения
+        <textarea name="application" rows="2">{{ item.application if item else '' }}</textarea>
+    </label>
+    <label>Требования безопасности
+        <textarea name="safety_notes" rows="3">{{ item.safety_notes if item else '' }}</textarea>
+    </label>
+    <label>Нормативные документы (ГОСТ и т.п.)
+        <input type="text" name="standards" value="{{ item.standards if item else '' }}">
+    </label>
+
+    <div class="form-actions">
+        <button class="btn btn-primary" type="submit">Сохранить</button>
+        <a class="btn btn-ghost" href="{{ url_for('admin.equipment_list') }}">Отмена</a>
+    </div>
+</form>
+{% endblock %}

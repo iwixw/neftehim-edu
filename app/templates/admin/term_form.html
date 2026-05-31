@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Редактирование' if term else 'Новый термин' }} · Админ{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <h1>{{ 'Редактирование термина' if term else 'Новый термин' }}</h1>
+    <p class="muted"><a href="{{ url_for('admin.term_list') }}">← К глоссарию</a></p>
+</div>
+
+<form method="post" class="admin-form">
+    <label>Термин*
+        <input type="text" name="term" required value="{{ term.term if term else '' }}">
+    </label>
+    <label>Определение*
+        <textarea name="definition" rows="4" required>{{ term.definition if term else '' }}</textarea>
+    </label>
+    <div class="form-actions">
+        <button class="btn btn-primary" type="submit">Сохранить</button>
+        <a class="btn btn-ghost" href="{{ url_for('admin.term_list') }}">Отмена</a>
+    </div>
+</form>
+{% endblock %}

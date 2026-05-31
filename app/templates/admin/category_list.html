@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Категории · Админ{% endblock %}
+
+{% block content %}
+<div class="page-head admin-head">
+    <div>
+        <h1>Категории</h1>
+        <p class="muted"><a href="{{ url_for('cabinet.index') }}">← Личный кабинет</a></p>
+    </div>
+    <a class="btn btn-primary" href="{{ url_for('admin.category_form') }}">+ Добавить</a>
+</div>
+
+<table class="admin-table">
+    <thead><tr><th>Иконка</th><th>Название</th><th>Slug</th><th>Изделий</th><th></th></tr></thead>
+    <tbody>
+        {% for c in categories %}
+        <tr>
+            <td class="cat-icon">{{ c.icon }}</td>
+            <td>{{ c.name }}</td>
+            <td><code>{{ c.slug }}</code></td>
+            <td>{{ c.equipment|length }}</td>
+            <td class="row-actions">
+                <a class="btn btn-ghost btn-sm" href="{{ url_for('admin.category_form', cat_id=c.id) }}">Изменить</a>
+                <form method="post" action="{{ url_for('admin.category_delete', cat_id=c.id) }}"
+                      onsubmit="return confirm('Удалить категорию «{{ c.name }}» и всё её оборудование?');">
+                    <button class="btn btn-danger btn-sm" type="submit">Удалить</button>
+                </form>
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" class="muted">Категорий пока нет.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

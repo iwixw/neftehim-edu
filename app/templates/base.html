@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Обучающая система · СПТО «Нефтехимпроект»{% endblock %}</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" sizes="any">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css', v=17) }}">
+</head>
+<body>
+<header class="site-header">
+    <div class="container header-inner">
+        <a href="{{ url_for('main.index') }}" class="logo">
+            <span class="logo-mark">⬡</span>
+            <span class="logo-text">Нефтехим<strong>Обучение</strong></span>
+        </a>
+        <button class="nav-toggle" type="button" aria-label="Меню" aria-expanded="false">☰</button>
+        <div class="nav-collapse">
+            <nav class="main-nav">
+                <a href="{{ url_for('catalog.index') }}">Каталог</a>
+                <a href="{{ url_for('main.tank') }}">Схема резервуара</a>
+                <a href="{{ url_for('catalog.compare') }}">Сравнение</a>
+                <a href="{{ url_for('glossary.index') }}">Глоссарий</a>
+            </nav>
+            <div class="auth-nav">
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('cabinet.index') }}" class="btn-link">Кабинет</a>
+                    <span class="user-chip">{{ current_user.full_name or current_user.login }}</span>
+                    <a href="{{ url_for('auth.logout') }}" class="btn btn-ghost">Выход</a>
+                {% else %}
+                    <a href="{{ url_for('auth.login') }}" class="btn-link">Вход</a>
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-primary">Регистрация</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="container page">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-stack">
+                {% for category, message in messages %}
+                    <div class="flash flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+</main>
+
+{% block scripts %}{% endblock %}
+<script src="{{ url_for('static', filename='js/app.js', v=1) }}"></script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Глоссарий · НефтехимОбучение{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <h1>Глоссарий терминов</h1>
+    <p class="muted">Основные понятия по оборудованию резервуарных парков.</p>
+</div>
+
+<form class="catalog-search" method="get" action="{{ url_for('glossary.index') }}">
+    <input type="search" name="q" value="{{ query }}" placeholder="Поиск термина (напр. РВС, понтон)…">
+    <button class="btn btn-primary" type="submit">Найти</button>
+    {% if query %}<a class="btn btn-ghost" href="{{ url_for('glossary.index') }}">Сбросить</a>{% endif %}
+</form>
+
+{% if terms %}
+<dl class="glossary">
+    {% for t in terms %}
+    <div class="glossary-item">
+        <dt>{{ t.term }}</dt>
+        <dd>{{ t.definition }}</dd>
+    </div>
+    {% endfor %}
+</dl>
+{% else %}
+<div class="empty-state"><p>Терминов не найдено.</p></div>
+{% endif %}
+{% endblock %}

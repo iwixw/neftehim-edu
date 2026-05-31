@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Каталог · НефтехимОбучение{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <h1>Каталог оборудования</h1>
+    <p class="muted">Учебные материалы по технологическому оборудованию резервуарных парков.</p>
+</div>
+
+<form class="catalog-search" method="get" action="{{ url_for('catalog.index') }}">
+    {% if active_category %}<input type="hidden" name="category" value="{{ active_category.slug }}">{% endif %}
+    <input type="search" name="q" value="{{ query }}" placeholder="Поиск по названию или марке (напр. КДМ, понтон)…">
+    <button class="btn btn-primary" type="submit">Найти</button>
+    {% if query or active_category %}
+        <a class="btn btn-ghost" href="{{ url_for('catalog.index') }}">Сбросить</a>
+    {% endif %}
+</form>
+
+<div class="catalog-layout">
+    <aside class="catalog-filters">
+        <h3>Категории</h3>
+        <ul class="filter-list">
+            <li>
+                <a href="{{ url_for('catalog.index', q=query or none) }}"
+                   class="{{ 'active' if not active_category }}">Все категории</a>
+            </li>
+            {% for c in categories %}
+            <li>
+                <a href="{{ url_for('catalog.index', category=c.slug, q=query or none) }}"
+                   class="{{ 'active' if active_category and active_category.id == c.id }}">
+                    <span class="fl-name"><span class="fl-ic">{{ c.icon }}</span><span>{{ c.name }}</span></span>
+                    <span class="badge">{{ c.equipment|length }}</span>
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </aside>
+
+    <section class="catalog-results">
+        <p class="results-meta">
+            Найдено: <strong>{{ items|length }}</strong>
+            {% if active_category %} · {{ active_category.name }}{% endif %}
+            {% if query %} · по запросу «{{ query }}»{% endif %}
+        </p>
+
+        <div class="card-grid">
+            {% for item in items %}
+            <a class="card equipment-card" href="{{ url_for('catalog.equipment', eq_id=item.id) }}">
+                <div class="eq-thumb">
+                    {% if item.has_image %}
+                        <img src="{{ url_for('catalog.equipment_image', eq_id=item.id) }}" alt="{{ item.title }}" loading="lazy">
+                    {% else %}
+                        <span class="eq-thumb-icon">{{ item.category.icon }}</span>
+                    {% endif %}
+                </div>
+                <div class="eq-head">
+                    <span class="eq-cat">{{ item.category.icon }} {{ item.category.name }}</span>
+                    {% if item.marking %}<span class="eq-mark">{{ item.marking }}</span>{% endif %}
+                </div>
+                <h3>{{ item.title }}</h3>
+                <p class="muted">{{ item.purpose|truncate(110) }}</p>
+            </a>
+            {% else %}
+            <div class="empty-state">
+                <p>Ничего не найдено. Попробуйте изменить запрос или категорию.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+{% endblock %}

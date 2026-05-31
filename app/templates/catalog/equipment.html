@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block title %}{{ item.title }} · НефтехимОбучение{% endblock %}
+
+{% block content %}
+<nav class="breadcrumbs">
+    <a href="{{ url_for('catalog.index') }}">Каталог</a> /
+    <a href="{{ url_for('catalog.index', category=item.category.slug) }}">{{ item.category.name }}</a> /
+    <span>{{ item.title }}</span>
+</nav>
+
+<header class="eq-detail-head">
+    <div>
+        <p class="eyebrow">{{ item.category.icon }} {{ item.category.name }}</p>
+        <h1>{{ item.title }}</h1>
+        {% if item.marking %}<p class="eq-marking">Марка / обозначение: <strong>{{ item.marking }}</strong></p>{% endif %}
+    </div>
+</header>
+
+<div class="eq-layout">
+    <article class="eq-sections">
+        {% if item.has_image %}
+        <section class="eq-block eq-image-block">
+            <img src="{{ url_for('catalog.equipment_image', eq_id=item.id) }}" alt="{{ item.title }}">
+        </section>
+        {% endif %}
+        {% if item.purpose %}
+        <section class="eq-block"><h2>Назначение</h2><p>{{ item.purpose }}</p></section>
+        {% endif %}
+        {% if item.operating_principle %}
+        <section class="eq-block"><h2>Принцип работы</h2><p>{{ item.operating_principle }}</p></section>
+        {% endif %}
+        {% if item.specifications %}
+        <section class="eq-block"><h2>Технические характеристики</h2>
+            <ul class="spec-list">
+                {% for line in item.specifications.split('\n') %}
+                    {% if line.strip() %}<li>{{ line }}</li>{% endif %}
+                {% endfor %}
+            </ul>
+        </section>
+        {% endif %}
+        {% if item.application %}
+        <section class="eq-block"><h2>Область применения</h2><p>{{ item.application }}</p></section>
+        {% endif %}
+        {% if item.safety_notes %}
+        <section class="eq-block eq-safety"><h2>⚠️ Требования безопасности</h2><p>{{ item.safety_notes }}</p></section>
+        {% endif %}
+    </article>
+
+    <aside class="eq-aside">
+        {% if current_user.is_authenticated %}
+        <div class="side-card">
+            <h3>Действия</h3>
+            <form class="ajax-toggle" method="post" action="{{ url_for('cabinet.toggle', eq_id=item.id, flag='favorite') }}">
+                <button data-role="favorite" class="btn {{ 'btn-primary' if bookmark and bookmark.is_favorite else 'btn-ghost' }} btn-block" type="submit">
+                    {{ '★ В избранном' if bookmark and bookmark.is_favorite else '☆ В избранное' }}
+                </button>
+            </form>
+            <form class="ajax-toggle" method="post" action="{{ url_for('cabinet.toggle', eq_id=item.id, flag='studied') }}">
+                <button data-role="studied" class="btn {{ 'btn-success' if bookmark and bookmark.is_studied else 'btn-ghost' }} btn-block" type="submit">
+                    {{ '✓ Изучено' if bookmark and bookmark.is_studied else 'Отметить изученным' }}
+                </button>
+            </form>
+        </div>
+        {% else %}
+        <div class="side-card side-cta">
+            <h3>Сохраняйте прогресс</h3>
+            <p class="muted">Войдите, чтобы добавлять изделия в избранное и отмечать изученное.</p>
+            <a class="btn btn-primary btn-block" href="{{ url_for('auth.login') }}">Войти</a>
+        </div>
+        {% endif %}
+
+        {% if item.hotspot %}
+        <div class="side-card">
+            <h3>На схеме резервуара</h3>
+            <p class="muted">Это изделие отмечено на интерактивной схеме РВС.</p>
+            <a class="btn btn-ghost btn-block" href="{{ url_for('main.tank') }}">🛢️ Открыть схему</a>
+        </div>
+        {% endif %}
+
+        <div class="side-card">
+            <h3>Кратко</h3>
+            <dl class="fact-list">
+                <dt>Категория</dt>
+                <dd><a href="{{ url_for('catalog.index', category=item.category.slug) }}">{{ item.category.name }}</a></dd>
+                {% if item.marking %}<dt>Марка</dt><dd>{{ item.marking }}</dd>{% endif %}
+                {% if item.standards %}<dt>Нормативные документы</dt><dd>{{ item.standards }}</dd>{% endif %}
+            </dl>
+            <a class="btn btn-ghost btn-block" href="{{ url_for('catalog.compare', ids=item.id) }}">⚖ Сравнить с другими</a>
+        </div>
+
+        {% if related %}
+        <div class="side-card">
+            <h3>Смотрите также</h3>
+            <ul class="side-related">
+                {% for r in related %}
+                <li><a href="{{ url_for('catalog.equipment', eq_id=r.id) }}">
+                    {{ r.title }}{% if r.marking %} <span class="muted">· {{ r.marking }}</span>{% endif %}
+                </a></li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+    </aside>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/bookmark.js', v=4) }}"></script>
+{% endblock %}

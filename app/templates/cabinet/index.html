@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Личный кабинет · НефтехимОбучение{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <h1>Личный кабинет</h1>
+    <p class="muted">{{ current_user.full_name or current_user.login }}</p>
+</div>
+
+{% if admin_stats %}
+<section class="section admin-panel">
+    <h2>Администрирование</h2>
+    <div class="stat-grid">
+        <div class="stat-box"><strong>{{ admin_stats.categories }}</strong><span>категорий</span></div>
+        <div class="stat-box"><strong>{{ admin_stats.equipment }}</strong><span>изделий</span></div>
+        <div class="stat-box"><strong>{{ admin_stats.users }}</strong><span>пользователей</span></div>
+        <div class="stat-box"><strong>{{ admin_stats.bookmarks }}</strong><span>закладок</span></div>
+    </div>
+    <div class="admin-actions">
+        <a class="btn btn-primary" href="{{ url_for('admin.equipment_list') }}">Оборудование</a>
+        <a class="btn btn-primary" href="{{ url_for('admin.category_list') }}">Категории</a>
+        <a class="btn btn-primary" href="{{ url_for('admin.term_list') }}">Глоссарий</a>
+        <a class="btn btn-ghost" href="{{ url_for('admin.equipment_form') }}">+ Добавить изделие</a>
+        <a class="btn btn-ghost" href="{{ url_for('admin.category_form') }}">+ Добавить категорию</a>
+    </div>
+</section>
+{% endif %}
+
+<section class="progress-panel">
+    <div class="progress-info">
+        <h3>Прогресс изучения</h3>
+        <p>Изучено <strong>{{ studied|length }}</strong> из {{ total_equipment }} изделий</p>
+    </div>
+    <div class="progress-bar">
+        <div class="progress-fill" style="width: {{ progress }}%"></div>
+        <span class="progress-label">{{ progress }}%</span>
+    </div>
+</section>
+
+<section class="section">
+    <h2>★ Избранное</h2>
+    {% if favorites %}
+    <div class="card-grid">
+        {% for b in favorites %}
+        <a class="card equipment-card" href="{{ url_for('catalog.equipment', eq_id=b.equipment.id) }}">
+            <div class="eq-head">
+                <span class="eq-cat">{{ b.equipment.category.icon }} {{ b.equipment.category.name }}</span>
+                {% if b.is_studied %}<span class="eq-mark studied">✓ изучено</span>{% endif %}
+            </div>
+            <h3>{{ b.equipment.title }}</h3>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="muted">Вы пока ничего не добавили в избранное. Откройте <a href="{{ url_for('catalog.index') }}">каталог</a> и нажмите «☆ В избранное» на карточке изделия.</p>
+    {% endif %}
+</section>
+
+<section class="section">
+    <h2>✓ Изученное</h2>
+    {% if studied %}
+    <ul class="studied-list">
+        {% for b in studied %}
+        <li><a href="{{ url_for('catalog.equipment', eq_id=b.equipment.id) }}">{{ b.equipment.title }}</a>
+            <span class="muted">— {{ b.equipment.category.name }}</span></li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p class="muted">Отмечайте изделия как изученные, чтобы отслеживать прогресс.</p>
+    {% endif %}
+</section>
+{% endblock %}

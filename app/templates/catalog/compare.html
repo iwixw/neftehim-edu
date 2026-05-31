@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Сравнение оборудования · НефтехимОбучение{% endblock %}
+
+{% macro option_list(sel) %}
+    <option value="">— не выбрано —</option>
+    {% for it in all_items %}
+        <option value="{{ it.id }}" {{ 'selected' if sel == it.id }}>{{ it.title }}</option>
+    {% endfor %}
+{% endmacro %}
+
+{% block content %}
+<nav class="breadcrumbs">
+    {% if selected %}
+        <a href="{{ url_for('catalog.equipment', eq_id=selected[0].id) }}">← Назад к «{{ selected[0].title }}»</a>
+    {% else %}
+        <a href="{{ url_for('catalog.index') }}">← Назад в каталог</a>
+    {% endif %}
+</nav>
+
+<div class="page-head">
+    <h1>Сравнение оборудования</h1>
+    <p class="muted">Выберите 2–3 изделия, чтобы сравнить их характеристики.</p>
+</div>
+
+<form method="get" action="{{ url_for('catalog.compare') }}">
+    <div class="compare-pick">
+        {% for i in range(3) %}
+        <select name="ids">
+            {{ option_list(selected_ids[i] if selected_ids|length > i else 0) }}
+        </select>
+        {% endfor %}
+    </div>
+    <div class="form-actions">
+        <button class="btn btn-primary" type="submit">Сравнить</button>
+        <a class="btn btn-ghost" href="{{ url_for('catalog.compare') }}">Сбросить</a>
+    </div>
+</form>
+
+{% if selected|length >= 1 %}
+<div class="compare-table-wrap section">
+    <table class="compare-table">
+        <thead>
+            <tr>
+                <th class="row-label">Изделие</th>
+                {% for it in selected %}
+                <th>
+                    {% if it.has_image %}
+                    <img class="compare-img" src="{{ url_for('catalog.equipment_image', eq_id=it.id) }}" alt="{{ it.title }}">
+                    {% endif %}
+                    <div><a href="{{ url_for('catalog.equipment', eq_id=it.id) }}">{{ it.title }}</a></div>
+                </th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for label, attr in rows %}
+            <tr>
+                <td class="row-label">{{ label }}</td>
+                {% for it in selected %}
+                <td>
+                    {% if attr == 'category_name' %}
+                        {{ it.category.icon }} {{ it.category.name }}
+                    {% elif attr == 'specifications' %}
+                        {{ (it.specifications or '—')|replace('\n', '<br>')|safe }}
+                    {% else %}
+                        {{ it[attr] or '—' }}
+                    {% endif %}
+                </td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="empty-state"><p>Выберите изделия из списков выше и нажмите «Сравнить».</p></div>
+{% endif %}
+{% endblock %}

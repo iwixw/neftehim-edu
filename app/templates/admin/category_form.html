@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Редактирование' if category else 'Новая категория' }} · Админ{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <h1>{{ 'Редактирование категории' if category else 'Новая категория' }}</h1>
+    <p class="muted"><a href="{{ url_for('admin.category_list') }}">← К списку категорий</a></p>
+</div>
+
+<form method="post" class="admin-form">
+    <div class="form-row">
+        <label>Название*
+            <input type="text" name="name" required value="{{ category.name if category else '' }}">
+        </label>
+        <label>Иконка (эмодзи)
+            <input type="text" name="icon" maxlength="4" value="{{ category.icon if category else '🛠️' }}">
+        </label>
+    </div>
+    <label>Slug (латиницей, можно оставить пустым — сгенерируется)
+        <input type="text" name="slug" value="{{ category.slug if category else '' }}" placeholder="dyhatelnye-klapany">
+    </label>
+    <label>Описание
+        <textarea name="description" rows="2">{{ category.description if category else '' }}</textarea>
+    </label>
+    <div class="form-actions">
+        <button class="btn btn-primary" type="submit">Сохранить</button>
+        <a class="btn btn-ghost" href="{{ url_for('admin.category_list') }}">Отмена</a>
+    </div>
+</form>
+{% endblock %}

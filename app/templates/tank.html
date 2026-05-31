@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Интерактивная схема резервуара · НефтехимОбучение{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <h1>Интерактивная схема резервуара РВС</h1>
+    <p class="muted">Наведите на узел или подпись и нажмите, чтобы перейти к учебному материалу.</p>
+</div>
+
+<div class="tank-stage">
+    <svg id="tank-svg" viewBox="-260 -10 1390 600" class="tank-svg" xmlns="http://www.w3.org/2000/svg"
+         data-viewbox-wide="-260 -10 1390 600" data-viewbox-narrow="120 60 560 470"
+         aria-label="Схема вертикального стального резервуара с выносками">
+        <!-- Грунт / основание -->
+        <rect x="0" y="500" width="{{ W }}" height="60" fill="#e7ddc9"/>
+        <rect x="120" y="478" width="560" height="26" rx="4" fill="#c9bfa6"/>
+
+        <!-- Стенка резервуара -->
+        <rect x="150" y="150" width="500" height="350" rx="6" fill="#cfe0ea" stroke="#5a7c91" stroke-width="3"/>
+        <!-- Уровень продукта -->
+        <rect x="153" y="300" width="494" height="197" rx="4" fill="#9ec6df"/>
+        <line x1="153" y1="300" x2="647" y2="300" stroke="#5a7c91" stroke-width="2" stroke-dasharray="6 5"/>
+        <!-- Пояса стенки -->
+        <line x1="150" y1="230" x2="650" y2="230" stroke="#5a7c91" stroke-width="1" opacity="0.5"/>
+        <line x1="150" y1="320" x2="650" y2="320" stroke="#5a7c91" stroke-width="1" opacity="0.4"/>
+        <line x1="150" y1="410" x2="650" y2="410" stroke="#5a7c91" stroke-width="1" opacity="0.4"/>
+
+        <!-- Крыша (стационарная коническая) -->
+        <polygon points="150,150 400,80 650,150" fill="#b8cdd9" stroke="#5a7c91" stroke-width="3"/>
+
+        <!-- Направляющая труба уровнемера (поплавок ходит по высоте) -->
+        <g class="guide-tube">
+            <line x1="496" y1="96" x2="496" y2="470" stroke="#6f8aa0" stroke-width="2" stroke-dasharray="4 4"/>
+            <rect x="487" y="292" width="18" height="14" rx="3" fill="#fff" stroke="#6f8aa0" stroke-width="1.5"/>
+        </g>
+
+        <!-- Обвязка / трубопровод снизу -->
+        <rect x="650" y="455" width="110" height="14" rx="4" fill="#7d8a93"/>
+        <rect x="40" y="455" width="110" height="14" rx="4" fill="#7d8a93"/>
+
+        <!-- Горячие точки с выносками -->
+        {% for p in points %}
+        <a class="hotspot" href="{{ url_for('catalog.equipment', eq_id=p.h.equipment.id) }}">
+            <!-- линия-выноска -->
+            <polyline class="leader"
+                      points="{{ p.sx }},{{ p.sy }} {{ p.line_x }},{{ p.ly }} {{ p.text_x }},{{ p.ly }}"/>
+            <!-- подпись -->
+            <text class="callout-text" x="{{ p.text_x }}" y="{{ p.ly + 5 }}" text-anchor="{{ p.anchor }}">
+                {{ p.num }}. {{ p.h.label }}
+            </text>
+            <!-- точка -->
+            <circle cx="{{ p.sx }}" cy="{{ p.sy }}" r="13" class="hotspot-pulse"/>
+            <circle cx="{{ p.sx }}" cy="{{ p.sy }}" r="13" class="hotspot-dot"/>
+            <text x="{{ p.sx }}" y="{{ p.sy + 5 }}" class="hotspot-num" text-anchor="middle">{{ p.num }}</text>
+        </a>
+        {% endfor %}
+    </svg>
+
+    <aside class="tank-legend">
+        <h3>Узлы оборудования</h3>
+        {% if points %}
+        <ol class="legend-list">
+            {% for p in points %}
+            <li>
+                <a href="{{ url_for('catalog.equipment', eq_id=p.h.equipment.id) }}">
+                    <span class="legend-num">{{ p.num }}</span>
+                    <span>
+                        <strong>{{ p.h.label }}</strong>
+                        <small>{{ p.h.equipment.title }}</small>
+                    </span>
+                </a>
+            </li>
+            {% endfor %}
+        </ol>
+        {% else %}
+        <p class="muted">Горячие точки не заданы. Запустите сидирование БД (seed.py).</p>
+        {% endif %}
+    </aside>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/tank.js', v=3) }}"></script>
+{% endblock %}

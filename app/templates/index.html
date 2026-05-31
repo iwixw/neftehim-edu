@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Главная · НефтехимОбучение{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="hero-text">
+        <p class="eyebrow">Оборудование для резервуарных парков АЗС, нефтебаз и НПЗ</p>
+        <h1>Интерактивная обучающая система по <span class="grad">технологическому оборудованию</span></h1>
+        <p class="lead">
+            Каталог-учебник, интерактивная схема резервуара и проверка знаний —
+            всё для безопасной эксплуатации оборудования хранения
+            взрывоопасных газо-нефтехимических продуктов.
+        </p>
+        <div class="hero-actions">
+            <a href="{{ url_for('catalog.index') }}" class="btn btn-primary btn-lg">Открыть каталог</a>
+            <a href="{{ url_for('main.tank') }}" class="btn btn-ghost btn-lg">Схема резервуара</a>
+        </div>
+        <div class="hero-stats">
+            <div><strong>{{ equipment_count }}</strong><span>изделий в каталоге</span></div>
+            <div><strong>{{ categories|length }}</strong><span>разделов</span></div>
+            <div><strong>24/7</strong><span>доступ к учебнику</span></div>
+        </div>
+    </div>
+    <div class="hero-art">
+        <div class="tank-preview">
+            <a href="{{ url_for('main.tank') }}" title="Перейти к интерактивной схеме">⬡</a>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <h2>Разделы каталога</h2>
+    <div class="card-grid">
+        {% for c in categories %}
+        <a class="card category-card" href="{{ url_for('catalog.index', category=c.slug) }}">
+            <div class="card-icon">{{ c.icon }}</div>
+            <h3>{{ c.name }}</h3>
+            <p class="muted">{{ c.description }}</p>
+            <span class="card-count">{{ c.equipment|length }} изделий →</span>
+        </a>
+        {% else %}
+        <p class="muted">Каталог ещё не наполнен. Запустите сидирование БД.</p>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="section feature-row">
+    <div class="feature">
+        <div class="feature-icon">📘</div>
+        <h3>Каталог-учебник</h3>
+        <p>Назначение, принцип работы, характеристики, нормативка и требования безопасности по каждому изделию.</p>
+    </div>
+    <div class="feature">
+        <div class="feature-icon">🛢️</div>
+        <h3>Интерактивная схема</h3>
+        <p>Разрез резервуара РВС с горячими точками — кликните по узлу и изучите оборудование.</p>
+    </div>
+    <div class="feature">
+        <div class="feature-icon">🔖</div>
+        <h3>Личный прогресс</h3>
+        <p>Сохраняйте изделия в избранное и отмечайте изученное — прогресс виден в личном кабинете.</p>
+    </div>
+</section>
+{% endblock %}

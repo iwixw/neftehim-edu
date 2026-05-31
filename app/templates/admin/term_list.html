@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Глоссарий · Админ{% endblock %}
+
+{% block content %}
+<div class="page-head admin-head">
+    <div>
+        <h1>Глоссарий</h1>
+        <p class="muted"><a href="{{ url_for('cabinet.index') }}">← Личный кабинет</a></p>
+    </div>
+    <a class="btn btn-primary" href="{{ url_for('admin.term_form') }}">+ Добавить термин</a>
+</div>
+
+<table class="admin-table">
+    <thead><tr><th>Термин</th><th>Определение</th><th></th></tr></thead>
+    <tbody>
+        {% for t in terms %}
+        <tr>
+            <td><strong>{{ t.term }}</strong></td>
+            <td>{{ t.definition|truncate(120) }}</td>
+            <td class="row-actions">
+                <a class="btn btn-ghost btn-sm" href="{{ url_for('admin.term_form', term_id=t.id) }}">Изменить</a>
+                <form method="post" action="{{ url_for('admin.term_delete', term_id=t.id) }}"
+                      onsubmit="return confirm('Удалить термин «{{ t.term }}»?');">
+                    <button class="btn btn-danger btn-sm" type="submit">Удалить</button>
+                </form>
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="3" class="muted">Терминов пока нет.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Оборудование · Админ{% endblock %}
+
+{% block content %}
+<div class="page-head admin-head">
+    <div>
+        <h1>Оборудование</h1>
+        <p class="muted"><a href="{{ url_for('cabinet.index') }}">← Личный кабинет</a></p>
+    </div>
+    <a class="btn btn-primary" href="{{ url_for('admin.equipment_form') }}">+ Добавить</a>
+</div>
+
+<table class="admin-table">
+    <thead>
+        <tr><th>Название</th><th>Марка</th><th>Категория</th><th>Схема</th><th></th></tr>
+    </thead>
+    <tbody>
+        {% for item in items %}
+        <tr>
+            <td><a href="{{ url_for('catalog.equipment', eq_id=item.id) }}">{{ item.title }}</a></td>
+            <td>{{ item.marking or '—' }}</td>
+            <td>{{ item.category.name }}</td>
+            <td>{{ '📍 ' + item.hotspot.label if item.hotspot else '—' }}</td>
+            <td class="row-actions">
+                <a class="btn btn-ghost btn-sm" href="{{ url_for('admin.equipment_form', eq_id=item.id) }}">Изменить</a>
+                <form method="post" action="{{ url_for('admin.equipment_delete', eq_id=item.id) }}"
+                      onsubmit="return confirm('Удалить «{{ item.title }}»?');">
+                    <button class="btn btn-danger btn-sm" type="submit">Удалить</button>
+                </form>
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" class="muted">Список пуст.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

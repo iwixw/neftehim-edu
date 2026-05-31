@@ -1,0 +1,207 @@
+"""Админ-панель: управление категориями и оборудованием каталога.
+
+Доступ только для пользователей с ролью 'admin'.
+"""
+import re
+from functools import wraps
+
+from flask import Blueprint, render_template, request, redirect, url_for, flash, abort
+from flask_login import login_required, current_user
+
+from ..extensions import db
+from ..models import Category, Equipment, User, Bookmark, Term
+
+admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
+
+
+def admin_required(view):
+    """Декоратор: пускает только администратора."""
+    @wraps(view)
+    @login_required
+    def wrapped(*args, **kwargs):
+        if not current_user.is_admin:
+            abort(403)
+        return view(*args, **kwargs)
+    return wrapped
+
+
+def _slugify(value):
+    value = value.lower().strip()
+    translit = {
+        "а": "a", "б": "b", "в": "v", "г": "g", "д": "d", "е": "e", "ё": "e",
+        "ж": "zh", "з": "z", "и": "i", "й": "y", "к": "k", "л": "l", "м": "m",
+        "н": "n", "о": "o", "п": "p", "р": "r", "с": "s", "т": "t", "у": "u",
+        "ф": "f", "х": "h", "ц": "c", "ч": "ch", "ш": "sh", "щ": "sch", "ъ": "",
+        "ы": "y", "ь": "", "э": "e", "ю": "yu", "я": "ya", " ": "-",
+    }
+    value = "".join(translit.get(ch, ch) for ch in value)
+    value = re.sub(r"[^a-z0-9\-]", "", value)
+    value = re.sub(r"-+", "-", value).strip("-")
+    return value or "category"
+
+
+@admin_bp.route("/")
+@admin_required
+def dashboard():
+    # Админ-панель объединена с личным кабинетом
+    return redirect(url_for("cabinet.index"))
+
+
+# --- Категории --------------------------------------------------------------
+@admin_bp.route("/categories")
+@admin_required
+def category_list():
+    categories = Category.query.order_by(Category.name).all()
+    return render_template("admin/category_list.html", categories=categories)
+
+
+@admin_bp.route("/categories/new", methods=["GET", "POST"])
+@admin_bp.route("/categories/<int:cat_id>/edit", methods=["GET", "POST"])
+@admin_required
+def category_form(cat_id=None):
+    category = Category.query.get_or_404(cat_id) if cat_id else None
+
+    if request.method == "POST":
+        f = request.form
+        name = f.get("name", "").strip()
+        if not name:
+            flash("Укажите название категории.", "danger")
+        else:
+            if category is None:
+                category = Category()
+                db.session.add(category)
+            category.name = name
+            category.description = f.get("description", "").strip()
+            category.icon = f.get("icon", "🛠️").strip() or "🛠️"
+            slug = f.get("slug", "").strip() or _slugify(name)
+            # гарантируем уникальность slug
+            base, n = slug, 2
+            existing = Category.query.filter(Category.slug == slug, Category.id != (category.id or 0)).first()
+            while existing:
+                slug = f"{base}-{n}"; n += 1
+                existing = Category.query.filter(Category.slug == slug, Category.id != (category.id or 0)).first()
+            category.slug = slug
+            db.session.commit()
+            flash("Категория сохранена.", "success")
+            return redirect(url_for("admin.category_list"))
+
+    return render_template("admin/category_form.html", category=category)
+
+
+@admin_bp.route("/categories/<int:cat_id>/delete", methods=["POST"])
+@admin_required
+def category_delete(cat_id):
+    category = Category.query.get_or_404(cat_id)
+    db.session.delete(category)
+    db.session.commit()
+    flash("Категория удалена вместе с её оборудованием.", "info")
+    return redirect(url_for("admin.category_list"))
+
+
+# --- Оборудование -----------------------------------------------------------
+@admin_bp.route("/equipment")
+@admin_required
+def equipment_list():
+    items = Equipment.query.order_by(Equipment.title).all()
+    return render_template("admin/equipment_list.html", items=items)
+
+
+@admin_bp.route("/equipment/new", methods=["GET", "POST"])
+@admin_bp.route("/equipment/<int:eq_id>/edit", methods=["GET", "POST"])
+@admin_required
+def equipment_form(eq_id=None):
+    item = Equipment.query.get_or_404(eq_id) if eq_id else None
+    categories = Category.query.order_by(Category.name).all()
+
+    if request.method == "POST":
+        f = request.form
+        if item is None:
+            item = Equipment()
+            db.session.add(item)
+        item.category_id = f.get("category_id", type=int)
+        item.title = f.get("title", "").strip()
+        item.marking = f.get("marking", "").strip()
+        item.purpose = f.get("purpose", "").strip()
+        item.operating_principle = f.get("operating_principle", "").strip()
+        item.specifications = f.get("specifications", "").strip()
+        item.application = f.get("application", "").strip()
+        item.standards = f.get("standards", "").strip()
+        item.safety_notes = f.get("safety_notes", "").strip()
+
+        # Загрузка изображения
+        upload = request.files.get("image")
+        allowed = {"image/jpeg", "image/png", "image/webp", "image/gif"}
+        if upload and upload.filename:
+            if upload.mimetype not in allowed:
+                flash("Изображение должно быть JPEG, PNG, WEBP или GIF.", "danger")
+                return render_template("admin/equipment_form.html", item=item, categories=categories)
+            item.image_data = upload.read()
+            item.image_mime = upload.mimetype
+        elif f.get("remove_image") == "1":
+            item.image_data = None
+            item.image_mime = None
+
+        if not item.title or not item.category_id:
+            flash("Заполните название и категорию.", "danger")
+        else:
+            db.session.commit()
+            flash("Оборудование сохранено.", "success")
+            return redirect(url_for("admin.equipment_list"))
+
+    return render_template("admin/equipment_form.html", item=item, categories=categories)
+
+
+@admin_bp.route("/equipment/<int:eq_id>/delete", methods=["POST"])
+@admin_required
+def equipment_delete(eq_id):
+    item = Equipment.query.get_or_404(eq_id)
+    db.session.delete(item)
+    db.session.commit()
+    flash("Оборудование удалено.", "info")
+    return redirect(url_for("admin.equipment_list"))
+
+
+# --- Глоссарий --------------------------------------------------------------
+@admin_bp.route("/terms")
+@admin_required
+def term_list():
+    terms = Term.query.order_by(Term.term).all()
+    return render_template("admin/term_list.html", terms=terms)
+
+
+@admin_bp.route("/terms/new", methods=["GET", "POST"])
+@admin_bp.route("/terms/<int:term_id>/edit", methods=["GET", "POST"])
+@admin_required
+def term_form(term_id=None):
+    term = Term.query.get_or_404(term_id) if term_id else None
+
+    if request.method == "POST":
+        name = request.form.get("term", "").strip()
+        definition = request.form.get("definition", "").strip()
+        if not name or not definition:
+            flash("Заполните термин и определение.", "danger")
+        else:
+            dup = Term.query.filter(Term.term == name, Term.id != (term.id if term else 0)).first()
+            if dup:
+                flash("Такой термин уже есть.", "danger")
+            else:
+                if term is None:
+                    term = Term()
+                    db.session.add(term)
+                term.term = name
+                term.definition = definition
+                db.session.commit()
+                flash("Термин сохранён.", "success")
+                return redirect(url_for("admin.term_list"))
+
+    return render_template("admin/term_form.html", term=term)
+
+
+@admin_bp.route("/terms/<int:term_id>/delete", methods=["POST"])
+@admin_required
+def term_delete(term_id):
+    term = Term.query.get_or_404(term_id)
+    db.session.delete(term)
+    db.session.commit()
+    flash("Термин удалён.", "info")
+    return redirect(url_for("admin.term_list"))
