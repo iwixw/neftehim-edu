@@ -29,6 +29,11 @@ def create_app(config_class=Config):
     app.register_blueprint(admin_bp)
 
     from flask import render_template
+    from datetime import datetime
+
+    @app.context_processor
+    def inject_globals():
+        return {"current_year": datetime.now().year}
 
     @app.errorhandler(403)
     def forbidden(e):

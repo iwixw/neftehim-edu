@@ -362,6 +362,22 @@ h1, h2, h3 { line-height: 1.2; letter-spacing: -0.02em; font-weight: 800; }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
 .form-actions { display: flex; gap: 12px; margin-top: 14px; }
 
+/* --- Footer --- */
+.site-footer { margin-top: 70px; background: #11162a; color: #c7cee0; }
+.footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1.4fr; gap: 32px; padding: 48px 22px 36px; }
+.footer-logo { font-size: 1.2rem; font-weight: 700; color: #fff; margin-bottom: 12px; }
+.footer-logo .logo-mark { background: var(--grad-primary); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.footer-logo strong { background: var(--grad-primary); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.footer-brand p { color: #98a2c0; max-width: 360px; margin: 0; line-height: 1.6; }
+.footer-col h4 { color: #fff; font-size: .95rem; margin: 0 0 14px; }
+.footer-col a { display: block; color: #aab3cf; padding: 5px 0; font-weight: 500; }
+.footer-col a:hover { color: #fff; }
+.footer-col p { margin: 0 0 6px; color: #98a2c0; }
+.footer-bottom { border-top: 1px solid rgba(255,255,255,.08); }
+.footer-bottom-inner { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 18px 22px; flex-wrap: wrap; }
+.footer-bottom-inner span { font-size: .88rem; }
+.footer-bottom-inner .muted { color: #6f7799; }
+
 /* --- Error page --- */
 .error-page { text-align: center; padding: 90px 20px; }
 .error-page h1 {
@@ -460,6 +476,9 @@ h1, h2, h3 { line-height: 1.2; letter-spacing: -0.02em; font-weight: 800; }
     .progress-panel { padding: 22px; gap: 18px; }
     .compare-pick { grid-template-columns: 1fr; }
     .compare-table .row-label { width: auto; }
+    .footer-grid { grid-template-columns: 1fr 1fr; gap: 24px; padding: 36px 16px 28px; }
+    .footer-brand { grid-column: 1 / -1; }
+    .footer-bottom-inner { justify-content: center; text-align: center; }
 }
 
 /* На узких экранах схема показывает только резервуар с номерами;

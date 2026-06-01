@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css', v=18) }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css', v=19) }}">
 </head>
 <body>
 <header class="site-header">
@@ -53,6 +53,46 @@
 
     {% block content %}{% endblock %}
 </main>
+
+<footer class="site-footer">
+    <div class="container footer-grid">
+        <div class="footer-col footer-brand">
+            <div class="footer-logo"><span class="logo-mark">⬡</span> Нефтехим<strong>Обучение</strong></div>
+            <p>Обучающая информационная система по технологическому оборудованию резервуарных
+               парков АЗС, нефтебаз и НПЗ для безопасного хранения нефтепродуктов.</p>
+        </div>
+        <div class="footer-col">
+            <h4>Разделы</h4>
+            <a href="{{ url_for('catalog.index') }}">Каталог</a>
+            <a href="{{ url_for('main.tank') }}">Схема резервуара</a>
+            <a href="{{ url_for('catalog.compare') }}">Сравнение</a>
+            <a href="{{ url_for('glossary.index') }}">Глоссарий</a>
+        </div>
+        <div class="footer-col">
+            <h4>Аккаунт</h4>
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('cabinet.index') }}">Личный кабинет</a>
+                <a href="{{ url_for('auth.logout') }}">Выход</a>
+            {% else %}
+                <a href="{{ url_for('auth.login') }}">Вход</a>
+                <a href="{{ url_for('auth.register') }}">Регистрация</a>
+            {% endif %}
+        </div>
+        <div class="footer-col">
+            <h4>Контакты</h4>
+            <p>ЗАО «СПТО Нефтехимпроект»</p>
+            <p>г. Самара</p>
+            <p>ИНН 6330061926</p>
+            <a href="https://www.neftehimproekt.ru" target="_blank" rel="noopener">neftehimproekt.ru</a>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <div class="container footer-bottom-inner">
+            <span>© {{ current_year }} НефтехимОбучение</span>
+            <span class="muted">Дипломный проект · учебные материалы</span>
+        </div>
+    </div>
+</footer>
 
 {% block scripts %}{% endblock %}
 <script src="{{ url_for('static', filename='js/app.js', v=1) }}"></script>
