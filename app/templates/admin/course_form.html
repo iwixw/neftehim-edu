@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Редактирование' if course else 'Новый курс' }} · Админ{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <h1>{{ 'Редактирование курса' if course else 'Новый курс' }}</h1>
+    <p class="muted"><a href="{{ url_for('admin.course_list') }}">← К списку курсов</a></p>
+</div>
+
+<form method="post" class="admin-form">
+    <div class="form-row">
+        <label>Название*
+            <input type="text" name="title" required value="{{ course.title if course else '' }}">
+        </label>
+        <label>Иконка (эмодзи)
+            <input type="text" name="icon" maxlength="4" value="{{ course.icon if course else '📘' }}">
+        </label>
+    </div>
+    <div class="form-row">
+        <label>Уровень
+            <input type="text" name="level" value="{{ course.level if course else 'Базовый' }}" placeholder="Базовый / Продвинутый">
+        </label>
+        <label>Порядок (число)
+            <input type="number" name="position" value="{{ course.position if course else 0 }}">
+        </label>
+    </div>
+    <label>Slug (латиницей, можно пусто)
+        <input type="text" name="slug" value="{{ course.slug if course else '' }}">
+    </label>
+    <label>Описание
+        <textarea name="description" rows="3">{{ course.description if course else '' }}</textarea>
+    </label>
+    <div class="form-actions">
+        <button class="btn btn-primary" type="submit">Сохранить</button>
+        <a class="btn btn-ghost" href="{{ url_for('admin.course_list') }}">Отмена</a>
+    </div>
+</form>
+{% endblock %}

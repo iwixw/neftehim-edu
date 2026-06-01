@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css', v=20) }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css', v=21) }}">
 </head>
 <body>
 <header class="site-header">
@@ -21,6 +21,7 @@
         <button class="nav-toggle" type="button" aria-label="Меню" aria-expanded="false">☰</button>
         <div class="nav-collapse">
             <nav class="main-nav">
+                <a href="{{ url_for('courses.index') }}">Курсы</a>
                 <a href="{{ url_for('catalog.index') }}">Каталог</a>
                 <a href="{{ url_for('main.tank') }}">Схема резервуара</a>
                 <a href="{{ url_for('catalog.compare') }}">Сравнение</a>
@@ -63,6 +64,7 @@
         </div>
         <div class="footer-col">
             <h4>Разделы</h4>
+            <a href="{{ url_for('courses.index') }}">Курсы</a>
             <a href="{{ url_for('catalog.index') }}">Каталог</a>
             <a href="{{ url_for('main.tank') }}">Схема резервуара</a>
             <a href="{{ url_for('catalog.compare') }}">Сравнение</a>

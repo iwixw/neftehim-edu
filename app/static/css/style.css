@@ -362,6 +362,47 @@ h1, h2, h3 { line-height: 1.2; letter-spacing: -0.02em; font-weight: 800; }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
 .form-actions { display: flex; gap: 12px; margin-top: 14px; }
 
+/* --- Courses --- */
+.course-card { display: flex; flex-direction: column; }
+.course-top { display: flex; justify-content: space-between; align-items: center; }
+.course-level { font-size: .72rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; color: var(--primary); background: rgba(59,91,255,.10); padding: 4px 11px; border-radius: 20px; }
+.course-card h3 { margin: 12px 0 6px; }
+.course-meta { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 12px; color: var(--muted); font-weight: 600; font-size: .9rem; }
+.course-pct { color: var(--success); }
+.mini-progress { height: 7px; background: var(--bg); border-radius: 20px; overflow: hidden; margin-top: 10px; }
+.mini-progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--success)); }
+
+.course-head { display: flex; gap: 20px; align-items: flex-start; margin: 8px 0 24px; }
+.course-head-icon { width: 70px; height: 70px; font-size: 2.2rem; flex: none; }
+.course-head h1 { margin: 8px 0 8px; }
+.course-progress { margin-bottom: 26px; }
+
+.lesson-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.lesson-list a { display: flex; align-items: center; gap: 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 20px; box-shadow: var(--shadow-sm); color: var(--ink); transition: transform .15s, border-color .15s; }
+.lesson-list a:hover { transform: translateX(4px); border-color: var(--primary); }
+.lesson-num { flex: none; width: 34px; height: 34px; border-radius: 50%; background: var(--bg); color: var(--muted); display: flex; align-items: center; justify-content: center; font-weight: 800; }
+.lesson-list li.done .lesson-num { background: var(--success); color: #fff; }
+.lesson-title { flex: 1; font-weight: 700; }
+.lesson-go { color: var(--primary); font-weight: 600; font-size: .9rem; }
+.course-actions { margin-top: 24px; }
+
+.lesson-layout { display: grid; grid-template-columns: 1fr 300px; gap: 24px; align-items: start; }
+.lesson-head { margin-bottom: 18px; }
+.lesson-content { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px 32px; box-shadow: var(--shadow-sm); }
+.lesson-content p { margin: 0 0 14px; }
+.lesson-content p:last-child { margin-bottom: 0; }
+.lesson-complete { margin: 24px 0; }
+.lesson-complete form { margin: 0; }
+.lesson-nav { display: flex; justify-content: space-between; gap: 12px; }
+.lesson-aside { position: sticky; top: 90px; }
+.lesson-toc { list-style: none; margin: 0; padding: 0; counter-reset: toc; display: grid; gap: 2px; }
+.lesson-toc li { counter-increment: toc; }
+.lesson-toc a { display: block; padding: 9px 12px; border-radius: 10px; color: var(--ink); font-size: .92rem; font-weight: 500; }
+.lesson-toc a::before { content: counter(toc) ". "; color: var(--muted); font-weight: 700; }
+.lesson-toc a:hover { background: var(--bg); }
+.lesson-toc li.current a { background: var(--grad-primary); color: #fff; font-weight: 700; }
+.lesson-toc li.current a::before { color: rgba(255,255,255,.8); }
+
 /* --- Footer --- */
 .site-footer { margin-top: 70px; background: #11162a; color: #c7cee0; }
 .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1.4fr; gap: 32px; padding: 48px 22px 36px; }
@@ -481,6 +522,9 @@ h1, h2, h3 { line-height: 1.2; letter-spacing: -0.02em; font-weight: 800; }
     .footer-grid { grid-template-columns: 1fr 1fr; gap: 24px; padding: 36px 16px 28px; }
     .footer-brand { grid-column: 1 / -1; }
     .footer-bottom-inner { justify-content: center; text-align: center; }
+    .lesson-layout { grid-template-columns: 1fr; }
+    .lesson-aside { position: static; order: -1; }
+    .lesson-content { padding: 20px; }
 }
 
 /* На узких экранах схема показывает только резервуар с номерами;

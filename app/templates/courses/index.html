@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Обучающие курсы · НефтехимОбучение{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <h1>Обучающие курсы</h1>
+    <p class="muted">Пошаговое изучение оборудования и безопасной эксплуатации резервуарных парков.</p>
+</div>
+
+<div class="card-grid">
+    {% for c in cards %}
+    <a class="card course-card" href="{{ url_for('courses.detail', slug=c.course.slug) }}">
+        <div class="course-top">
+            <div class="card-icon">{{ c.course.icon }}</div>
+            <span class="course-level">{{ c.course.level }}</span>
+        </div>
+        <h3>{{ c.course.title }}</h3>
+        <p class="muted">{{ c.course.description|truncate(120) }}</p>
+        <div class="course-meta">
+            <span>{{ c.total }} уроков</span>
+            {% if current_user.is_authenticated and c.percent %}
+            <span class="course-pct">{{ c.percent }}%</span>
+            {% endif %}
+        </div>
+        {% if current_user.is_authenticated %}
+        <div class="mini-progress"><div class="mini-progress-fill" style="width: {{ c.percent }}%"></div></div>
+        {% endif %}
+    </a>
+    {% else %}
+    <p class="muted">Курсы пока не добавлены.</p>
+    {% endfor %}
+</div>
+{% endblock %}

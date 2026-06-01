@@ -19,6 +19,7 @@ def create_app(config_class=Config):
     from .blueprints.catalog import catalog_bp
     from .blueprints.cabinet import cabinet_bp
     from .blueprints.glossary import glossary_bp
+    from .blueprints.courses import courses_bp
     from .blueprints.admin import admin_bp
 
     app.register_blueprint(main_bp)
@@ -26,6 +27,7 @@ def create_app(config_class=Config):
     app.register_blueprint(catalog_bp)
     app.register_blueprint(cabinet_bp)
     app.register_blueprint(glossary_bp)
+    app.register_blueprint(courses_bp)
     app.register_blueprint(admin_bp)
 
     from flask import render_template

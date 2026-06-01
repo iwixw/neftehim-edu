@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}{{ course.title }} · Курсы{% endblock %}
+
+{% block content %}
+<nav class="breadcrumbs">
+    <a href="{{ url_for('courses.index') }}">← Все курсы</a>
+</nav>
+
+<header class="course-head">
+    <div class="card-icon course-head-icon">{{ course.icon }}</div>
+    <div>
+        <span class="course-level">{{ course.level }}</span>
+        <h1>{{ course.title }}</h1>
+        <p class="muted">{{ course.description }}</p>
+    </div>
+</header>
+
+{% if current_user.is_authenticated %}
+<section class="progress-panel course-progress">
+    <div class="progress-info">
+        <h3>Прогресс курса</h3>
+        <p>Пройдено {{ done }} из {{ total }} уроков</p>
+    </div>
+    <div class="progress-bar">
+        <div class="progress-fill" style="width: {{ percent }}%"></div>
+        <span class="progress-label">{{ percent }}%</span>
+    </div>
+</section>
+{% endif %}
+
+<ol class="lesson-list">
+    {% for l in course.lessons %}
+    <li class="{{ 'done' if l.id in done_ids }}">
+        <a href="{{ url_for('courses.lesson', slug=course.slug, lesson_id=l.id) }}">
+            <span class="lesson-num">{{ '✓' if l.id in done_ids else loop.index }}</span>
+            <span class="lesson-title">{{ l.title }}</span>
+            <span class="lesson-go">Открыть →</span>
+        </a>
+    </li>
+    {% else %}
+    <li class="muted">В этом курсе пока нет уроков.</li>
+    {% endfor %}
+</ol>
+
+{% if course.lessons %}
+<div class="course-actions">
+    <a class="btn btn-primary btn-lg" href="{{ url_for('courses.lesson', slug=course.slug, lesson_id=course.lessons[0].id) }}">
+        Начать курс
+    </a>
+</div>
+{% endif %}
+{% endblock %}

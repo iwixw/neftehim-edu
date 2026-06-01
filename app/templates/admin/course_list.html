@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Курсы · Админ{% endblock %}
+
+{% block content %}
+<div class="page-head admin-head">
+    <div>
+        <h1>Курсы</h1>
+        <p class="muted"><a href="{{ url_for('cabinet.index') }}">← Личный кабинет</a></p>
+    </div>
+    <a class="btn btn-primary" href="{{ url_for('admin.course_form') }}">+ Добавить курс</a>
+</div>
+
+<table class="admin-table">
+    <thead><tr><th>#</th><th>Иконка</th><th>Название</th><th>Уровень</th><th>Уроков</th><th></th></tr></thead>
+    <tbody>
+        {% for c in courses %}
+        <tr>
+            <td>{{ c.position }}</td>
+            <td class="cat-icon">{{ c.icon }}</td>
+            <td><a href="{{ url_for('admin.course_detail', course_id=c.id) }}">{{ c.title }}</a></td>
+            <td>{{ c.level }}</td>
+            <td>{{ c.lesson_count }}</td>
+            <td class="row-actions">
+                <a class="btn btn-ghost btn-sm" href="{{ url_for('admin.course_form', course_id=c.id) }}">Изменить</a>
+                <form method="post" action="{{ url_for('admin.course_delete', course_id=c.id) }}"
+                      onsubmit="return confirm('Удалить курс «{{ c.title }}» со всеми уроками?');">
+                    <button class="btn btn-danger btn-sm" type="submit">Удалить</button>
+                </form>
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6" class="muted">Курсов пока нет.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

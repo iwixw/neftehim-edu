@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}{{ lesson.title }} · {{ course.title }}{% endblock %}
+
+{% block content %}
+<nav class="breadcrumbs">
+    <a href="{{ url_for('courses.index') }}">Курсы</a> /
+    <a href="{{ url_for('courses.detail', slug=course.slug) }}">{{ course.title }}</a> /
+    <span>Урок {{ number }}</span>
+</nav>
+
+<div class="lesson-layout">
+    <article class="lesson-body">
+        <header class="lesson-head">
+            <span class="eyebrow">{{ course.icon }} {{ course.title }} · Урок {{ number }} из {{ course.lesson_count }}</span>
+            <h1>{{ lesson.title }}</h1>
+        </header>
+
+        <div class="prose lesson-content">
+            {% for para in lesson.content.split('\n\n') %}
+                {% if para.strip() %}<p>{{ para.strip()|replace('\n', '<br>')|safe }}</p>{% endif %}
+            {% endfor %}
+        </div>
+
+        <div class="lesson-complete">
+            {% if current_user.is_authenticated %}
+            <form method="post" action="{{ url_for('courses.complete', slug=course.slug, lesson_id=lesson.id) }}">
+                <button class="btn {{ 'btn-success' if is_done else 'btn-primary' }} btn-lg" type="submit">
+                    {{ '✓ Урок пройден (снять отметку)' if is_done else 'Отметить пройденным' }}
+                </button>
+            </form>
+            {% else %}
+            <p class="muted">Войдите, чтобы отмечать прогресс прохождения. <a href="{{ url_for('auth.login') }}">Вход</a></p>
+            {% endif %}
+        </div>
+
+        <nav class="lesson-nav">
+            {% if prev_lesson %}
+            <a class="btn btn-ghost" href="{{ url_for('courses.lesson', slug=course.slug, lesson_id=prev_lesson.id) }}">← Предыдущий</a>
+            {% else %}<span></span>{% endif %}
+            {% if next_lesson %}
+            <a class="btn btn-ghost" href="{{ url_for('courses.lesson', slug=course.slug, lesson_id=next_lesson.id) }}">Следующий →</a>
+            {% else %}
+            <a class="btn btn-ghost" href="{{ url_for('courses.detail', slug=course.slug) }}">К содержанию курса</a>
+            {% endif %}
+        </nav>
+    </article>
+
+    <aside class="lesson-aside">
+        <div class="side-card">
+            <h3>{{ course.title }}</h3>
+            <ol class="lesson-toc">
+                {% for l in course.lessons %}
+                <li class="{{ 'current' if l.id == lesson.id }}">
+                    <a href="{{ url_for('courses.lesson', slug=course.slug, lesson_id=l.id) }}">{{ l.title }}</a>
+                </li>
+                {% endfor %}
+            </ol>
+        </div>
+    </aside>
+</div>
+{% endblock %}

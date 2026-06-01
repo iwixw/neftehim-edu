@@ -130,6 +130,63 @@ class Bookmark(db.Model):
     equipment = db.relationship("Equipment", back_populates="bookmarks")
 
 
+class Course(db.Model):
+    """Обучающий курс — набор уроков по теме."""
+    __tablename__ = "courses"
+
+    id = db.Column(db.Integer, primary_key=True)
+    slug = db.Column(db.String(120), unique=True, nullable=False)
+    title = db.Column(db.String(180), nullable=False)
+    description = db.Column(db.Text, default="")
+    icon = db.Column(db.String(16), default="📘")
+    level = db.Column(db.String(40), default="Базовый")
+    position = db.Column(db.Integer, default=0)
+
+    lessons = db.relationship(
+        "Lesson", back_populates="course",
+        cascade="all, delete-orphan", order_by="Lesson.position"
+    )
+
+    @property
+    def lesson_count(self):
+        return len(self.lessons)
+
+    def __repr__(self):
+        return f"<Course {self.title}>"
+
+
+class Lesson(db.Model):
+    """Урок курса (теоретический материал)."""
+    __tablename__ = "lessons"
+
+    id = db.Column(db.Integer, primary_key=True)
+    course_id = db.Column(db.Integer, db.ForeignKey("courses.id"), nullable=False)
+    title = db.Column(db.String(200), nullable=False)
+    content = db.Column(db.Text, default="")
+    position = db.Column(db.Integer, default=0)
+
+    course = db.relationship("Course", back_populates="lessons")
+    progress = db.relationship(
+        "LessonProgress", back_populates="lesson", cascade="all, delete-orphan"
+    )
+
+
+class LessonProgress(db.Model):
+    """Отметка о прохождении урока пользователем."""
+    __tablename__ = "lesson_progress"
+    __table_args__ = (
+        db.UniqueConstraint("user_id", "lesson_id", name="uq_user_lesson"),
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    lesson_id = db.Column(db.Integer, db.ForeignKey("lessons.id"), nullable=False)
+    completed_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    user = db.relationship("User")
+    lesson = db.relationship("Lesson", back_populates="progress")
+
+
 class Term(db.Model):
     """Термин глоссария отраслевых понятий."""
     __tablename__ = "terms"

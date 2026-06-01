@@ -6,7 +6,7 @@ from flask import Blueprint, render_template, redirect, url_for, request, flash,
 from flask_login import login_required, current_user
 
 from ..extensions import db
-from ..models import Bookmark, Equipment, Category, User
+from ..models import Bookmark, Equipment, Category, User, Course, Lesson, LessonProgress
 
 cabinet_bp = Blueprint("cabinet", __name__, url_prefix="/cabinet")
 
@@ -29,6 +29,19 @@ def index():
     total_equipment = Equipment.query.count()
     progress = round(len(studied) / total_equipment * 100) if total_equipment else 0
 
+    # Прогресс по курсам, которые ученик начал проходить
+    done_lesson_ids = {p.lesson_id for p in
+                       LessonProgress.query.filter_by(user_id=current_user.id).all()}
+    course_cards = []
+    for course in Course.query.order_by(Course.position, Course.title).all():
+        total = course.lesson_count
+        done = sum(1 for l in course.lessons if l.id in done_lesson_ids)
+        if done:  # показываем только начатые курсы
+            course_cards.append({
+                "course": course, "done": done, "total": total,
+                "percent": round(done / total * 100) if total else 0,
+            })
+
     # Для администратора — статистика и доступ к управлению каталогом
     admin_stats = None
     if current_user.is_admin:
@@ -43,7 +56,7 @@ def index():
         "cabinet/index.html",
         favorites=favorites, studied=studied,
         total_equipment=total_equipment, progress=progress,
-        admin_stats=admin_stats,
+        admin_stats=admin_stats, course_cards=course_cards,
     )
 
 

@@ -9,7 +9,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from flask_login import login_required, current_user
 
 from ..extensions import db
-from ..models import Category, Equipment, User, Bookmark, Term
+from ..models import Category, Equipment, User, Bookmark, Term, Course, Lesson
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 
@@ -205,3 +205,98 @@ def term_delete(term_id):
     db.session.commit()
     flash("Термин удалён.", "info")
     return redirect(url_for("admin.term_list"))
+
+
+# --- Курсы ------------------------------------------------------------------
+@admin_bp.route("/courses")
+@admin_required
+def course_list():
+    courses = Course.query.order_by(Course.position, Course.title).all()
+    return render_template("admin/course_list.html", courses=courses)
+
+
+@admin_bp.route("/courses/new", methods=["GET", "POST"])
+@admin_bp.route("/courses/<int:course_id>/edit", methods=["GET", "POST"])
+@admin_required
+def course_form(course_id=None):
+    course = Course.query.get_or_404(course_id) if course_id else None
+
+    if request.method == "POST":
+        f = request.form
+        title = f.get("title", "").strip()
+        if not title:
+            flash("Укажите название курса.", "danger")
+        else:
+            if course is None:
+                course = Course()
+                db.session.add(course)
+            course.title = title
+            course.description = f.get("description", "").strip()
+            course.icon = f.get("icon", "📘").strip() or "📘"
+            course.level = f.get("level", "Базовый").strip() or "Базовый"
+            course.position = f.get("position", type=int) or 0
+            slug = f.get("slug", "").strip() or _slugify(title)
+            base, n = slug, 2
+            while Course.query.filter(Course.slug == slug, Course.id != (course.id or 0)).first():
+                slug = f"{base}-{n}"; n += 1
+            course.slug = slug
+            db.session.commit()
+            flash("Курс сохранён.", "success")
+            return redirect(url_for("admin.course_detail", course_id=course.id))
+
+    return render_template("admin/course_form.html", course=course)
+
+
+@admin_bp.route("/courses/<int:course_id>")
+@admin_required
+def course_detail(course_id):
+    course = Course.query.get_or_404(course_id)
+    return render_template("admin/course_detail.html", course=course)
+
+
+@admin_bp.route("/courses/<int:course_id>/delete", methods=["POST"])
+@admin_required
+def course_delete(course_id):
+    course = Course.query.get_or_404(course_id)
+    db.session.delete(course)
+    db.session.commit()
+    flash("Курс удалён.", "info")
+    return redirect(url_for("admin.course_list"))
+
+
+@admin_bp.route("/courses/<int:course_id>/lessons/new", methods=["GET", "POST"])
+@admin_bp.route("/lessons/<int:lesson_id>/edit", methods=["GET", "POST"])
+@admin_required
+def lesson_form(course_id=None, lesson_id=None):
+    lesson = Lesson.query.get_or_404(lesson_id) if lesson_id else None
+    course = lesson.course if lesson else Course.query.get_or_404(course_id)
+
+    if request.method == "POST":
+        f = request.form
+        title = f.get("title", "").strip()
+        content = f.get("content", "").strip()
+        if not title:
+            flash("Укажите название урока.", "danger")
+        else:
+            if lesson is None:
+                lesson = Lesson(course_id=course.id)
+                db.session.add(lesson)
+            lesson.title = title
+            lesson.content = content
+            lesson.position = f.get("position", type=int) or 0
+            db.session.commit()
+            flash("Урок сохранён.", "success")
+            return redirect(url_for("admin.course_detail", course_id=course.id))
+
+    return render_template("admin/lesson_form.html", course=course, lesson=lesson)
+
+
+@admin_bp.route("/lessons/<int:lesson_id>/delete", methods=["POST"])
+@admin_required
+def lesson_delete(lesson_id):
+    lesson = Lesson.query.get_or_404(lesson_id)
+    course_id = lesson.course_id
+    db.session.delete(lesson)
+    db.session.commit()
+    flash("Урок удалён.", "info")
+    return redirect(url_for("admin.course_detail", course_id=course_id))

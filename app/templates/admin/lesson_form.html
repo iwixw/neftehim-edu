@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Редактирование урока' if lesson else 'Новый урок' }} · Админ{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <h1>{{ 'Редактирование урока' if lesson else 'Новый урок' }}</h1>
+    <p class="muted"><a href="{{ url_for('admin.course_detail', course_id=course.id) }}">← {{ course.title }}</a></p>
+</div>
+
+<form method="post" class="admin-form">
+    <div class="form-row">
+        <label>Название урока*
+            <input type="text" name="title" required value="{{ lesson.title if lesson else '' }}">
+        </label>
+        <label>Порядок (число)
+            <input type="number" name="position" value="{{ lesson.position if lesson else 0 }}">
+        </label>
+    </div>
+    <label>Содержание (абзацы разделяйте пустой строкой)
+        <textarea name="content" rows="16">{{ lesson.content if lesson else '' }}</textarea>
+    </label>
+    <div class="form-actions">
+        <button class="btn btn-primary" type="submit">Сохранить</button>
+        <a class="btn btn-ghost" href="{{ url_for('admin.course_detail', course_id=course.id) }}">Отмена</a>
+    </div>
+</form>
+{% endblock %}
