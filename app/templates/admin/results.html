@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Результаты учеников · Админ{% endblock %}
+
+{% block content %}
+<div class="page-head admin-head">
+    <div>
+        <h1>Результаты тестов</h1>
+        <p class="muted"><a href="{{ url_for('cabinet.index') }}">← Личный кабинет</a></p>
+    </div>
+</div>
+
+<div class="stat-grid">
+    <div class="stat-box"><strong>{{ stats.students }}</strong><span>учеников проходили</span></div>
+    <div class="stat-box"><strong>{{ stats.attempts }}</strong><span>попыток всего</span></div>
+    <div class="stat-box"><strong>{{ stats.passed }}</strong><span>успешных</span></div>
+</div>
+
+<form method="get" class="results-filter">
+    <select name="course" onchange="this.form.submit()">
+        <option value="">Все курсы</option>
+        {% for c in courses %}
+        <option value="{{ c.id }}" {{ 'selected' if course_filter == c.id }}>{{ c.title }}</option>
+        {% endfor %}
+    </select>
+    <noscript><button class="btn btn-primary" type="submit">Фильтр</button></noscript>
+</form>
+
+<h2 class="section-title">Журнал попыток</h2>
+<table class="admin-table">
+    <thead><tr><th>Дата</th><th>Ученик</th><th>Курс</th><th>Результат</th><th>Статус</th></tr></thead>
+    <tbody>
+        {% for r in attempts %}
+        <tr>
+            <td>{{ r.taken_at.strftime('%d.%m.%Y %H:%M') }}</td>
+            <td>{{ r.user.full_name or r.user.login if r.user else '—' }}</td>
+            <td>{{ r.course.title if r.course else '—' }}</td>
+            <td>{{ r.score }}% ({{ r.correct }}/{{ r.total }})</td>
+            <td>
+                <span class="status-badge {{ 'ok' if r.passed else 'bad' }}">
+                    {{ 'Сдан' if r.passed else 'Не сдан' }}
+                </span>
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" class="muted">Пока нет ни одной попытки.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

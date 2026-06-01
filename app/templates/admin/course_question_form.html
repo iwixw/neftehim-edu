@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Редактирование вопроса' if question else 'Новый вопрос' }} · Админ{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <h1>{{ 'Редактирование вопроса' if question else 'Новый вопрос' }}</h1>
+    <p class="muted"><a href="{{ url_for('admin.course_detail', course_id=course.id) }}">← {{ course.title }}</a></p>
+</div>
+
+<form method="post" class="admin-form">
+    <label>Текст вопроса*
+        <textarea name="text" rows="2" required>{{ question.text if question else '' }}</textarea>
+    </label>
+
+    <p class="muted">Введите варианты ответов и отметьте точкой правильный (минимум 2 варианта):</p>
+    {% set answers = question.answers if question else [] %}
+    {% for i in range(4) %}
+    <div class="opt-row">
+        <input type="radio" name="correct" value="{{ i }}"
+               {{ 'checked' if answers|length > i and answers[i].is_correct }}>
+        <input type="text" name="option" placeholder="Вариант {{ i + 1 }}"
+               value="{{ answers[i].text if answers|length > i else '' }}">
+    </div>
+    {% endfor %}
+
+    <div class="form-actions">
+        <button class="btn btn-primary" type="submit">Сохранить</button>
+        <a class="btn btn-ghost" href="{{ url_for('admin.course_detail', course_id=course.id) }}">Отмена</a>
+    </div>
+</form>
+{% endblock %}

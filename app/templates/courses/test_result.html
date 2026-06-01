@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Результат теста · {{ course.title }}{% endblock %}
+
+{% block content %}
+<nav class="breadcrumbs">
+    <a href="{{ url_for('courses.index') }}">Курсы</a> /
+    <a href="{{ url_for('courses.detail', slug=course.slug) }}">{{ course.title }}</a> /
+    <span>Результат</span>
+</nav>
+
+<div class="result-banner {{ 'passed' if result.passed else 'failed' }}">
+    <div class="result-score">{{ result.score }}%</div>
+    <div>
+        <h1>{{ 'Тест сдан!' if result.passed else 'Тест не сдан' }}</h1>
+        <p>Правильных ответов: {{ result.correct }} из {{ result.total }} ·
+           порог сдачи — {{ pass_score }}%</p>
+    </div>
+</div>
+
+<section class="section">
+    <h2>Разбор ответов</h2>
+    {% for r in review %}
+    <div class="test-question review {{ 'ok' if r.is_right else 'bad' }}">
+        <h3>{{ loop.index }}. {{ r.question.text }}</h3>
+        <div class="test-options">
+            {% for a in r.question.answers %}
+            <div class="test-option
+                        {{ 'correct' if a.id == r.correct_id }}
+                        {{ 'chosen-wrong' if a.id == r.chosen_id and a.id != r.correct_id }}">
+                <span>
+                    {% if a.id == r.correct_id %}✓{% elif a.id == r.chosen_id %}✗{% endif %}
+                    {{ a.text }}
+                </span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+</section>
+
+<div class="form-actions">
+    <a class="btn btn-primary" href="{{ url_for('courses.test', slug=course.slug) }}">Пройти заново</a>
+    <a class="btn btn-ghost" href="{{ url_for('courses.detail', slug=course.slug) }}">К курсу</a>
+</div>
+{% endblock %}

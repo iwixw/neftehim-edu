@@ -70,15 +70,17 @@ h1, h2, h3 { line-height: 1.2; letter-spacing: -0.02em; font-weight: 800; }
     background: var(--grad-primary);
     -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
 }
-.main-nav { display: flex; gap: 6px; margin-left: 10px; }
-.main-nav a { color: var(--ink); font-weight: 600; font-size: .96rem; padding: 8px 14px; border-radius: 10px; }
+.main-nav { display: flex; gap: 6px; flex: 1; justify-content: space-evenly; margin: 0 20px; }
+.main-nav a { color: var(--ink); font-weight: 600; font-size: .96rem; padding: 8px 14px; border-radius: 10px; white-space: nowrap; }
 .main-nav a:hover { background: rgba(59, 91, 255, 0.08); color: var(--primary); }
 .auth-nav { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.auth-nav .btn, .btn-link { white-space: nowrap; }
 .btn-link { color: var(--ink); font-weight: 600; font-size: .95rem; }
 .btn-link.admin { color: var(--accent); }
 .user-chip {
     font-size: .85rem; color: var(--ink); font-weight: 600;
     background: rgba(59, 91, 255, 0.08); padding: 6px 12px; border-radius: 20px;
+    max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .auth-nav .btn { padding: 8px 16px; font-size: .9rem; }
 
@@ -403,6 +405,40 @@ h1, h2, h3 { line-height: 1.2; letter-spacing: -0.02em; font-weight: 800; }
 .lesson-toc li.current a { background: var(--grad-primary); color: #fff; font-weight: 700; }
 .lesson-toc li.current a::before { color: rgba(255,255,255,.8); }
 
+/* Итоговый тест */
+.test-cta { margin-top: 26px; background: var(--grad-hero); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 28px; display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+.test-cta h2 { margin: 0 0 4px; }
+.test-best { margin: 8px 0 0; font-weight: 600; }
+.test-best.ok { color: var(--success); }
+.test-best.bad { color: var(--danger); }
+.test-form { display: grid; gap: 18px; }
+.test-question { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px 24px; box-shadow: var(--shadow-sm); }
+.test-question h3 { margin: 0 0 14px; font-size: 1.12rem; }
+.test-options { display: grid; gap: 8px; }
+.test-option { display: flex; align-items: center; gap: 10px; padding: 11px 14px; border: 1.5px solid var(--border); border-radius: 12px; cursor: pointer; font-weight: 500; transition: border-color .15s, background .15s; }
+.test-option:hover { border-color: var(--primary); }
+.test-option input { width: auto; margin: 0; flex: none; accent-color: var(--primary); }
+.test-question.review .test-option { cursor: default; }
+.test-option.correct { border-color: var(--success); background: #e7f8f0; color: #11663f; font-weight: 700; }
+.test-option.chosen-wrong { border-color: var(--danger); background: #fdeaec; color: #8f1d28; font-weight: 700; }
+.result-banner { display: flex; align-items: center; gap: 24px; border-radius: var(--radius); padding: 26px 30px; color: #fff; margin-bottom: 10px; }
+.result-banner.passed { background: linear-gradient(135deg, #1eb073, #11998e); }
+.result-banner.failed { background: linear-gradient(135deg, #e23d4d, #b91d2e); }
+.result-banner h1 { margin: 0 0 4px; color: #fff; }
+.result-banner p { margin: 0; opacity: .92; }
+.result-score { font-size: 3rem; font-weight: 800; line-height: 1; }
+.opt-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.opt-row input[type=radio] { width: auto; margin: 0; flex: none; accent-color: var(--primary); width: 20px; height: 20px; }
+.opt-row input[type=text] { margin: 0; }
+
+/* Результаты учеников (админ) */
+.results-filter { margin: 18px 0 24px; }
+.results-filter select { padding: 11px 16px; border: 1.5px solid var(--border); border-radius: 12px; font-family: inherit; font-weight: 600; background: var(--surface); cursor: pointer; }
+.section-title { font-size: 1.3rem; margin: 24px 0 14px; }
+.status-badge { display: inline-block; padding: 3px 12px; border-radius: 20px; font-size: .8rem; font-weight: 700; }
+.status-badge.ok { background: #e7f8f0; color: #11663f; }
+.status-badge.bad { background: #fdeaec; color: #8f1d28; }
+
 /* --- Footer --- */
 .site-footer { margin-top: 70px; background: #11162a; color: #c7cee0; }
 .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1.4fr; gap: 32px; padding: 48px 22px 36px; }
@@ -479,7 +515,7 @@ h1, h2, h3 { line-height: 1.2; letter-spacing: -0.02em; font-weight: 800; }
         background: var(--surface); border-bottom: 1px solid var(--border); box-shadow: var(--shadow);
     }
     .site-header.nav-open .nav-collapse { display: flex; }
-    .main-nav { flex-direction: column; gap: 2px; margin-left: 0; }
+    .main-nav { flex-direction: column; gap: 2px; margin: 0; flex: none; justify-content: flex-start; }
     .main-nav a { padding: 12px 14px; font-size: 1rem; }
     .auth-nav { margin-left: 0; margin-top: 8px; padding-top: 12px; border-top: 1px solid var(--border);
                 flex-direction: column; align-items: stretch; gap: 8px; }

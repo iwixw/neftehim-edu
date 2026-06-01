@@ -3,9 +3,19 @@ from flask import Blueprint, render_template, redirect, url_for, request, flash,
 from flask_login import login_required, current_user
 
 from ..extensions import db
-from ..models import Course, Lesson, LessonProgress
+from ..models import Course, Lesson, LessonProgress, CourseQuestion, TestResult
 
 courses_bp = Blueprint("courses", __name__, url_prefix="/courses")
+
+PASS_SCORE = 60  # порог сдачи итогового теста, %
+
+
+def _best_result(course_id):
+    if not current_user.is_authenticated:
+        return None
+    results = TestResult.query.filter_by(
+        user_id=current_user.id, course_id=course_id).all()
+    return max(results, key=lambda r: r.score) if results else None
 
 
 def _completed_lesson_ids():
@@ -43,6 +53,8 @@ def detail(slug):
         "courses/detail.html",
         course=course, done_ids=done_ids,
         done=done, total=total, percent=percent,
+        has_test=len(course.questions) > 0,
+        best_result=_best_result(course.id),
     )
 
 
@@ -92,3 +104,45 @@ def complete(slug, lesson_id):
     if not row and idx < len(lessons) - 1:
         return redirect(url_for("courses.lesson", slug=course.slug, lesson_id=lessons[idx + 1].id))
     return redirect(url_for("courses.lesson", slug=course.slug, lesson_id=lesson.id))
+
+
+@courses_bp.route("/<slug>/test", methods=["GET", "POST"])
+@login_required
+def test(slug):
+    course = Course.query.filter_by(slug=slug).first_or_404()
+    questions = course.questions
+    if not questions:
+        flash("У этого курса пока нет итогового теста.", "warning")
+        return redirect(url_for("courses.detail", slug=course.slug))
+
+    if request.method == "POST":
+        correct = 0
+        review = []
+        for q in questions:
+            chosen_id = request.form.get(f"q{q.id}", type=int)
+            right = q.correct_answer
+            is_right = right is not None and chosen_id == right.id
+            if is_right:
+                correct += 1
+            review.append({
+                "question": q, "chosen_id": chosen_id,
+                "correct_id": right.id if right else None, "is_right": is_right,
+            })
+
+        total = len(questions)
+        score = round(correct / total * 100) if total else 0
+        passed = score >= PASS_SCORE
+
+        result = TestResult(
+            user_id=current_user.id, course_id=course.id,
+            score=score, correct=correct, total=total, passed=passed,
+        )
+        db.session.add(result)
+        db.session.commit()
+
+        return render_template(
+            "courses/test_result.html",
+            course=course, result=result, review=review, pass_score=PASS_SCORE,
+        )
+
+    return render_template("courses/test.html", course=course, questions=questions)

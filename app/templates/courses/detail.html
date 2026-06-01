@@ -49,4 +49,26 @@
     </a>
 </div>
 {% endif %}
+
+{% if has_test %}
+<section class="test-cta">
+    <div>
+        <h2>📝 Итоговый тест</h2>
+        <p class="muted">Проверьте знания по курсу. Порог сдачи — 60%.</p>
+        {% if best_result %}
+        <p class="test-best {{ 'ok' if best_result.passed else 'bad' }}">
+            Ваш лучший результат: <strong>{{ best_result.score }}%</strong>
+            — {{ 'сдано ✓' if best_result.passed else 'не сдано' }}
+        </p>
+        {% endif %}
+    </div>
+    {% if current_user.is_authenticated %}
+        <a class="btn btn-primary btn-lg" href="{{ url_for('courses.test', slug=course.slug) }}">
+            {{ 'Пройти заново' if best_result else 'Пройти тест' }}
+        </a>
+    {% else %}
+        <a class="btn btn-primary btn-lg" href="{{ url_for('auth.login') }}">Войдите для теста</a>
+    {% endif %}
+</section>
+{% endif %}
 {% endblock %}

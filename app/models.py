@@ -187,6 +187,54 @@ class LessonProgress(db.Model):
     lesson = db.relationship("Lesson", back_populates="progress")
 
 
+class CourseQuestion(db.Model):
+    """Вопрос итогового теста курса."""
+    __tablename__ = "course_questions"
+
+    id = db.Column(db.Integer, primary_key=True)
+    course_id = db.Column(db.Integer, db.ForeignKey("courses.id"), nullable=False)
+    text = db.Column(db.Text, nullable=False)
+    position = db.Column(db.Integer, default=0)
+
+    course = db.relationship("Course", backref=db.backref(
+        "questions", cascade="all, delete-orphan", order_by="CourseQuestion.position"))
+    answers = db.relationship(
+        "CourseAnswer", back_populates="question", cascade="all, delete-orphan")
+
+    @property
+    def correct_answer(self):
+        return next((a for a in self.answers if a.is_correct), None)
+
+
+class CourseAnswer(db.Model):
+    """Вариант ответа на вопрос теста."""
+    __tablename__ = "course_answers"
+
+    id = db.Column(db.Integer, primary_key=True)
+    question_id = db.Column(db.Integer, db.ForeignKey("course_questions.id"), nullable=False)
+    text = db.Column(db.String(400), nullable=False)
+    is_correct = db.Column(db.Boolean, default=False)
+
+    question = db.relationship("CourseQuestion", back_populates="answers")
+
+
+class TestResult(db.Model):
+    """Результат прохождения итогового теста курса."""
+    __tablename__ = "test_results"
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    course_id = db.Column(db.Integer, db.ForeignKey("courses.id"), nullable=False)
+    score = db.Column(db.Integer, nullable=False)
+    correct = db.Column(db.Integer, nullable=False)
+    total = db.Column(db.Integer, nullable=False)
+    passed = db.Column(db.Boolean, default=False)
+    taken_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    user = db.relationship("User")
+    course = db.relationship("Course")
+
+
 class Term(db.Model):
     """Термин глоссария отраслевых понятий."""
     __tablename__ = "terms"

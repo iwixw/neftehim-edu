@@ -6,7 +6,8 @@ from flask import Blueprint, render_template, redirect, url_for, request, flash,
 from flask_login import login_required, current_user
 
 from ..extensions import db
-from ..models import Bookmark, Equipment, Category, User, Course, Lesson, LessonProgress
+from ..models import (Bookmark, Equipment, Category, User, Course, Lesson,
+                      LessonProgress, TestResult)
 
 cabinet_bp = Blueprint("cabinet", __name__, url_prefix="/cabinet")
 
@@ -32,14 +33,22 @@ def index():
     # Прогресс по курсам, которые ученик начал проходить
     done_lesson_ids = {p.lesson_id for p in
                        LessonProgress.query.filter_by(user_id=current_user.id).all()}
+    # лучшие результаты тестов по курсам
+    best_by_course = {}
+    for r in TestResult.query.filter_by(user_id=current_user.id).all():
+        if r.course_id not in best_by_course or r.score > best_by_course[r.course_id].score:
+            best_by_course[r.course_id] = r
+
     course_cards = []
     for course in Course.query.order_by(Course.position, Course.title).all():
         total = course.lesson_count
         done = sum(1 for l in course.lessons if l.id in done_lesson_ids)
-        if done:  # показываем только начатые курсы
+        best = best_by_course.get(course.id)
+        if done or best:  # показываем начатые курсы или с пройденным тестом
             course_cards.append({
                 "course": course, "done": done, "total": total,
                 "percent": round(done / total * 100) if total else 0,
+                "test": best,
             })
 
     # Для администратора — статистика и доступ к управлению каталогом

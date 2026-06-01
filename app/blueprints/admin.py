@@ -9,7 +9,8 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from flask_login import login_required, current_user
 
 from ..extensions import db
-from ..models import Category, Equipment, User, Bookmark, Term, Course, Lesson
+from ..models import (Category, Equipment, User, Bookmark, Term, Course, Lesson,
+                      CourseQuestion, CourseAnswer, TestResult, LessonProgress)
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 
@@ -45,6 +46,38 @@ def _slugify(value):
 def dashboard():
     # Админ-панель объединена с личным кабинетом
     return redirect(url_for("cabinet.index"))
+
+
+@admin_bp.route("/results")
+@admin_required
+def results():
+    """Результаты тестов учеников: общий журнал + лучшие баллы по ученикам."""
+    course_filter = request.args.get("course", type=int)
+
+    query = TestResult.query
+    if course_filter:
+        query = query.filter_by(course_id=course_filter)
+    attempts = query.order_by(TestResult.taken_at.desc()).all()
+
+    # сводка по ученикам: лучший балл по каждому курсу
+    summary = {}  # user_id -> {user, best: {course_id: result}, lessons_done}
+    for r in TestResult.query.all():
+        s = summary.setdefault(r.user_id, {"user": r.user, "best": {}})
+        cur = s["best"].get(r.course_id)
+        if cur is None or r.score > cur.score:
+            s["best"][r.course_id] = r
+
+    stats = {
+        "attempts": TestResult.query.count(),
+        "passed": TestResult.query.filter_by(passed=True).count(),
+        "students": db.session.query(TestResult.user_id).distinct().count(),
+    }
+    courses = Course.query.order_by(Course.position, Course.title).all()
+    return render_template(
+        "admin/results.html",
+        attempts=attempts, summary=list(summary.values()),
+        stats=stats, courses=courses, course_filter=course_filter,
+    )
 
 
 # --- Категории --------------------------------------------------------------
@@ -299,4 +332,48 @@ def lesson_delete(lesson_id):
     db.session.delete(lesson)
     db.session.commit()
     flash("Урок удалён.", "info")
+    return redirect(url_for("admin.course_detail", course_id=course_id))
+
+
+# --- Вопросы итогового теста курса ------------------------------------------
+@admin_bp.route("/courses/<int:course_id>/questions/new", methods=["GET", "POST"])
+@admin_bp.route("/course-questions/<int:question_id>/edit", methods=["GET", "POST"])
+@admin_required
+def course_question_form(course_id=None, question_id=None):
+    question = CourseQuestion.query.get_or_404(question_id) if question_id else None
+    course = question.course if question else Course.query.get_or_404(course_id)
+
+    if request.method == "POST":
+        text = request.form.get("text", "").strip()
+        options = [o.strip() for o in request.form.getlist("option") if o.strip()]
+        correct_index = request.form.get("correct", type=int)
+
+        if not text or len(options) < 2 or correct_index is None:
+            flash("Нужен текст вопроса, минимум 2 варианта и отметка верного.", "danger")
+        else:
+            if question is None:
+                question = CourseQuestion(course_id=course.id,
+                                          position=len(course.questions) + 1)
+                db.session.add(question)
+            question.text = text
+            for a in list(question.answers):
+                db.session.delete(a)
+            for i, opt in enumerate(options):
+                db.session.add(CourseAnswer(
+                    question=question, text=opt, is_correct=(i == correct_index)))
+            db.session.commit()
+            flash("Вопрос сохранён.", "success")
+            return redirect(url_for("admin.course_detail", course_id=course.id))
+
+    return render_template("admin/course_question_form.html", course=course, question=question)
+
+
+@admin_bp.route("/course-questions/<int:question_id>/delete", methods=["POST"])
+@admin_required
+def course_question_delete(question_id):
+    question = CourseQuestion.query.get_or_404(question_id)
+    course_id = question.course_id
+    db.session.delete(question)
+    db.session.commit()
+    flash("Вопрос удалён.", "info")
     return redirect(url_for("admin.course_detail", course_id=course_id))

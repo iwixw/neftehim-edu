@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css', v=21) }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css', v=25) }}">
 </head>
 <body>
 <header class="site-header">
@@ -30,7 +30,6 @@
             <div class="auth-nav">
                 {% if current_user.is_authenticated %}
                     <a href="{{ url_for('cabinet.index') }}" class="btn-link">Кабинет</a>
-                    <span class="user-chip">{{ current_user.full_name or current_user.login }}</span>
                     <a href="{{ url_for('auth.logout') }}" class="btn btn-ghost">Выход</a>
                 {% else %}
                     <a href="{{ url_for('auth.login') }}" class="btn-link">Вход</a>

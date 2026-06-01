@@ -31,4 +31,31 @@
         {% endfor %}
     </tbody>
 </table>
+
+<div class="page-head admin-head" style="margin-top:40px;">
+    <h2>Вопросы итогового теста</h2>
+    <a class="btn btn-primary" href="{{ url_for('admin.course_question_form', course_id=course.id) }}">+ Добавить вопрос</a>
+</div>
+
+<table class="admin-table">
+    <thead><tr><th>#</th><th>Вопрос</th><th>Вариантов</th><th></th></tr></thead>
+    <tbody>
+        {% for q in course.questions %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ q.text|truncate(90) }}</td>
+            <td>{{ q.answers|length }}</td>
+            <td class="row-actions">
+                <a class="btn btn-ghost btn-sm" href="{{ url_for('admin.course_question_form', question_id=q.id) }}">Изменить</a>
+                <form method="post" action="{{ url_for('admin.course_question_delete', question_id=q.id) }}"
+                      onsubmit="return confirm('Удалить вопрос?');">
+                    <button class="btn btn-danger btn-sm" type="submit">Удалить</button>
+                </form>
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4" class="muted">Вопросов теста пока нет.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
 {% endblock %}

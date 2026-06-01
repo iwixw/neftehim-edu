@@ -18,6 +18,7 @@
     </div>
     <div class="admin-actions">
         <a class="btn btn-primary" href="{{ url_for('admin.course_list') }}">Курсы</a>
+        <a class="btn btn-primary" href="{{ url_for('admin.results') }}">Результаты учеников</a>
         <a class="btn btn-primary" href="{{ url_for('admin.equipment_list') }}">Оборудование</a>
         <a class="btn btn-primary" href="{{ url_for('admin.category_list') }}">Категории</a>
         <a class="btn btn-primary" href="{{ url_for('admin.term_list') }}">Глоссарий</a>
@@ -49,7 +50,14 @@
                 <span class="course-pct">{{ c.percent }}%</span>
             </div>
             <h3>{{ c.course.title }}</h3>
-            <div class="course-meta"><span>Пройдено {{ c.done }} из {{ c.total }}</span></div>
+            <div class="course-meta">
+                <span>Пройдено {{ c.done }} из {{ c.total }}</span>
+                {% if c.test %}
+                <span class="{{ 'course-pct' if c.test.passed else '' }}" style="{{ '' if c.test.passed else 'color:var(--danger)' }}">
+                    Тест: {{ c.test.score }}%{{ ' ✓' if c.test.passed }}
+                </span>
+                {% endif %}
+            </div>
             <div class="mini-progress"><div class="mini-progress-fill" style="width: {{ c.percent }}%"></div></div>
         </a>
         {% endfor %}
