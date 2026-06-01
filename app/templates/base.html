@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css', v=19) }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css', v=20) }}">
 </head>
 <body>
 <header class="site-header">
@@ -78,18 +78,20 @@
                 <a href="{{ url_for('auth.register') }}">Регистрация</a>
             {% endif %}
         </div>
-        <div class="footer-col">
+        <div class="footer-col footer-contacts">
             <h4>Контакты</h4>
             <p>ЗАО «СПТО Нефтехимпроект»</p>
-            <p>г. Самара</p>
-            <p>ИНН 6330061926</p>
-            <a href="https://www.neftehimproekt.ru" target="_blank" rel="noopener">neftehimproekt.ru</a>
+            <p>Офис: г. Самара, ул. Ташкентская, 135Б, офис 1</p>
+            <p>Производство: г. Новокуйбышевск, Складской проезд, 6</p>
+            <p><a href="tel:+78462007779">+7 (846) 200-777-9</a></p>
+            <p><a href="mailto:info@neftehimproekt.ru">info@neftehimproekt.ru</a></p>
+            <p>Пн–Пт: 08:00–17:00 · ИНН 6330061926</p>
+            <a href="https://neftehimproekt.ru" target="_blank" rel="noopener">neftehimproekt.ru</a>
         </div>
     </div>
     <div class="footer-bottom">
         <div class="container footer-bottom-inner">
             <span>© {{ current_year }} НефтехимОбучение</span>
-            <span class="muted">Дипломный проект · учебные материалы</span>
         </div>
     </div>
 </footer>

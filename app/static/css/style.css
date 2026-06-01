@@ -373,6 +373,8 @@ h1, h2, h3 { line-height: 1.2; letter-spacing: -0.02em; font-weight: 800; }
 .footer-col a { display: block; color: #aab3cf; padding: 5px 0; font-weight: 500; }
 .footer-col a:hover { color: #fff; }
 .footer-col p { margin: 0 0 6px; color: #98a2c0; }
+.footer-contacts p a { display: inline; color: #c7cee0; font-weight: 600; }
+.footer-contacts p a:hover { color: #fff; }
 .footer-bottom { border-top: 1px solid rgba(255,255,255,.08); }
 .footer-bottom-inner { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 18px 22px; flex-wrap: wrap; }
 .footer-bottom-inner span { font-size: .88rem; }
