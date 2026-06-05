@@ -1,4 +1,6 @@
 """Обучающие курсы: список, страница курса, урок, отметка о прохождении."""
+import random
+
 from flask import Blueprint, render_template, redirect, url_for, request, flash, abort
 from flask_login import login_required, current_user
 
@@ -147,4 +149,10 @@ def test(slug):
             course=course, result=result, review=review, pass_score=PASS_SCORE,
         )
 
-    return render_template("courses/test.html", course=course, questions=questions)
+    # перемешиваем варианты ответов, чтобы правильный не был всегда первым
+    quiz = []
+    for q in questions:
+        options = list(q.answers)
+        random.shuffle(options)
+        quiz.append((q, options))
+    return render_template("courses/test.html", course=course, quiz=quiz)

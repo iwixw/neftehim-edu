@@ -10,15 +10,15 @@
 
 <div class="page-head">
     <h1>Итоговый тест: {{ course.title }}</h1>
-    <p class="muted">Вопросов: {{ questions|length }}. Выберите по одному ответу на каждый вопрос.</p>
+    <p class="muted">Вопросов: {{ quiz|length }}. Выберите по одному ответу на каждый вопрос.</p>
 </div>
 
 <form method="post" action="{{ url_for('courses.test', slug=course.slug) }}" class="test-form">
-    {% for q in questions %}
+    {% for q, options in quiz %}
     <div class="test-question">
         <h3>{{ loop.index }}. {{ q.text }}</h3>
         <div class="test-options">
-            {% for a in q.answers %}
+            {% for a in options %}
             <label class="test-option">
                 <input type="radio" name="q{{ q.id }}" value="{{ a.id }}" required>
                 <span>{{ a.text }}</span>
