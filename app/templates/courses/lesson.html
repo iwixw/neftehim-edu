@@ -33,6 +33,20 @@
             {% endif %}
         </div>
 
+        {% if is_last and has_test %}
+        <section class="test-cta lesson-test-cta">
+            <div>
+                <h2>🎓 Вы прошли все уроки курса!</h2>
+                <p class="muted">Закрепите материал — пройдите итоговый тест по курсу «{{ course.title }}».</p>
+            </div>
+            {% if current_user.is_authenticated %}
+            <a class="btn btn-primary btn-lg" href="{{ url_for('courses.test', slug=course.slug) }}">Пройти итоговый тест →</a>
+            {% else %}
+            <a class="btn btn-primary btn-lg" href="{{ url_for('auth.login') }}">Войдите для теста</a>
+            {% endif %}
+        </section>
+        {% endif %}
+
         <nav class="lesson-nav">
             {% if prev_lesson %}
             <a class="btn btn-ghost" href="{{ url_for('courses.lesson', slug=course.slug, lesson_id=prev_lesson.id) }}">← Предыдущий</a>

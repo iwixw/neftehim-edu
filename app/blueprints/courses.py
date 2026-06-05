@@ -76,6 +76,8 @@ def lesson(slug, lesson_id):
         course=course, lesson=lesson, number=idx + 1,
         prev_lesson=prev_lesson, next_lesson=next_lesson,
         is_done=lesson.id in done_ids,
+        is_last=next_lesson is None,
+        has_test=len(course.questions) > 0,
     )
 
 
