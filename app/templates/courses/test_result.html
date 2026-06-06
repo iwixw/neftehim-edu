@@ -23,7 +23,7 @@
     <div class="test-question review {{ 'ok' if r.is_right else 'bad' }}">
         <h3>{{ loop.index }}. {{ r.question.text }}</h3>
         <div class="test-options">
-            {% for a in r.question.answers %}
+            {% for a in r.options %}
             <div class="test-option
                         {{ 'correct' if a.id == r.correct_id }}
                         {{ 'chosen-wrong' if a.id == r.chosen_id and a.id != r.correct_id }}">

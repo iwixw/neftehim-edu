@@ -128,8 +128,15 @@ def test(slug):
             is_right = right is not None and chosen_id == right.id
             if is_right:
                 correct += 1
+            # показываем варианты в том же порядке, в каком их видел студент
+            by_id = {a.id: a for a in q.answers}
+            order = request.form.get(f"order_q{q.id}", "")
+            options = [by_id[int(x)] for x in order.split(",")
+                       if x.isdigit() and int(x) in by_id]
+            if not options:
+                options = list(q.answers)
             review.append({
-                "question": q, "chosen_id": chosen_id,
+                "question": q, "options": options, "chosen_id": chosen_id,
                 "correct_id": right.id if right else None, "is_right": is_right,
             })
 

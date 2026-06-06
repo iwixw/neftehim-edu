@@ -17,6 +17,8 @@
     {% for q, options in quiz %}
     <div class="test-question">
         <h3>{{ loop.index }}. {{ q.text }}</h3>
+        <input type="hidden" name="order_q{{ q.id }}"
+               value="{% for a in options %}{{ a.id }}{% if not loop.last %},{% endif %}{% endfor %}">
         <div class="test-options">
             {% for a in options %}
             <label class="test-option">
